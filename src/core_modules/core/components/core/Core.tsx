@@ -1,16 +1,21 @@
 import React from "react";
 
-import "./style/Core.css";
-import { ProviderWrapper } from './Redux';
-import { RouterWrapper } from "./Router";
-import { Content } from "./Content";
+import "./Core.css";
+import ReduxProviderWrapper from './ReduxProviderWrapper';
+import RouterWrapper from "./Router";
+import Content from "./Content";
+import QueryWrapper from "./Query";
+import SignInWrapper from "./SignInWrapper";
 
 export function Core() {
   return (
-    <RouterWrapper>
-      <ProviderWrapper>
-        <Content/>
-      </ProviderWrapper>
-    </RouterWrapper>
+    <ReduxProviderWrapper>
+      <RouterWrapper>
+        <QueryWrapper>
+          <SignInWrapper/>
+          <Content/>
+        </QueryWrapper>
+      </RouterWrapper>
+    </ReduxProviderWrapper>
   );
 }

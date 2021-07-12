@@ -4,4 +4,4 @@ import { environment as env_prod } from "./environment.prod";
 export const prodEnabled =
   !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
-export const environment = prodEnabled ? env_dev : new env_prod();
+export const environment = prodEnabled ? new env_dev() : new env_prod();

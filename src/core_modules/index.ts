@@ -12,7 +12,7 @@ export const modules: Array<MenuItem> = [
     text: "",
     path: "/signin",
     element: SignIn,
-    menuItems: signInRoutes,
+    menuItems: signInRoutes
   }
 
   // core will be not in the list,

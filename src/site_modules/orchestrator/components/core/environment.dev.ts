@@ -1,5 +1,5 @@
-export const environment = {
-  production: false,
-  apiEndpoint: "http://127.0.0.1:5001",
-  authenticationEnabled: false,
+export class environment {
+  production: boolean = false;
+  apiEndpoint: string = "http://127.0.0.1:8000";
+  authenticationEnabled: boolean = false;
 };

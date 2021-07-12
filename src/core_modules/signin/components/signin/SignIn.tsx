@@ -1,15 +1,15 @@
-import { Button, Input, TextField } from "@material-ui/core";
-import { Action, ThunkDispatch } from "@reduxjs/toolkit";
+import { Button, createStyles, FormControl, Grid, IconButton, Input, InputAdornment, InputLabel, makeStyles, TextField, Theme } from "@material-ui/core";
+import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { useSnackbar } from "notistack";
-import React, { Fragment, useEffect, useState } from "react";
-import { Component } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState } from "react";
 import { useHistory } from "react-router";
 import { signInAsync, useReduxDispatch } from './SignInSlice';
+import clsx from 'clsx';
 
 export function SignIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const dispatch = useReduxDispatch();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const history = useHistory();
@@ -25,7 +25,6 @@ export function SignIn() {
     dispatch(signInAsync(username, password))
     .then(
       (success: boolean) => {
-        console.log('1');
         enqueueSnackbar(
           success ? 'Signin successful!' : 'Error Signing in!',
           {
@@ -38,7 +37,7 @@ export function SignIn() {
           setTimeout(() => {
             // forward to default page on success
             history.push('/');
-          }, 3000);
+          }, 1000);
         }
       },
       () => {
@@ -54,16 +53,82 @@ export function SignIn() {
     );
   };
 
+  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(event.target.value);
+  };
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+  const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+      root: {
+        display: 'flex',
+        flexWrap: 'wrap',
+      },
+      margin: {
+        margin: theme.spacing(1),
+      },
+      withoutLabel: {
+        marginTop: theme.spacing(3),
+      },
+      textField: {
+        width: '25ch',
+      },
+      center: {
+        left: 'auto',
+        right: 'auto'
+      }
+    }),
+  );
+
+  const classes = useStyles();
+
   return (
-      <form className="Center" onSubmit={ e => onSubmit(e) }>
-      <TextField aria-label="Login Username" label="username" variant="filled" value={username} onChange={e => setUsername(e.target.value)} id="loginUsername"/>
+    <Grid container className={classes.root} justifyContent="center" alignItems="center">
+      <form className={classes.center} onSubmit={ e => onSubmit(e) }>
+      <TextField
+        aria-label="Login Username"
+        label="username"
+        variant="filled"
+        value={username}
+        onChange={handleUsernameChange}
+      />
       <br/>
-      <br/>
-      <TextField aria-label="Login Password" label="password" variant="filled" value={password} onChange={e => setPassword(e.target.value)} id="loginPassword"/>
+      <FormControl className={clsx(classes.margin, classes.textField)}>
+          <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
+          <Input
+            id="standard-adornment-password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={handlePasswordChange}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                >
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            }
+          />
+        </FormControl>
       <br/>
       <br/>
       <br/>
       <Button type="submit" variant="contained" color="primary">SignIn</Button>
     </form>
+    </Grid>
   );
 }

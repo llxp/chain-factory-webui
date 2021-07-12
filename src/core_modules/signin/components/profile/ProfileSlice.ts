@@ -1,29 +1,41 @@
-import { FitchCredentialsWrapper } from './../../../../site_modules/access/wrappers/FitchCredentialsWrapper';
-import { Fitch, JsonObject } from "@fiizy/fitch";
-import { Action, createSlice, PayloadAction, ThunkAction, ThunkDispatch } from "@reduxjs/toolkit";
+import { FitchCredentialsWrapper } from './../../../../site_modules/orchestrator/wrappers/FitchCredentialsWrapper';
+import { createSlice, PayloadAction, ThunkAction } from "@reduxjs/toolkit";
 import { environment } from "../core/environment";
-import { AppThunk, RootState } from "../../../../store";
-import { SnackbarProvider, useSnackbar } from 'notistack';
-import { useDispatch } from "react-redux";
+import { RootState, store } from "../../../../store";
+import { signOutAsync } from '../signin/SignInSlice';
 
-const apiService = new FitchCredentialsWrapper(environment.apiEndpoint);
+// api service to be used inside the async thunks
+const redirectCallback: { (): void } = () => {
+  store.dispatch(signOutAsync());
+};
+const apiService = new FitchCredentialsWrapper(environment.apiEndpoint, redirectCallback);
 
+// state type
+// --------
 export interface UserInformation {
   login_name: string;
   username: string;
   object_sid: string;
 }
 
-interface LoginState {
+interface ProfileState {
   userInformation: UserInformation | null;
 }
+// --------
+// state type
 
-const initialState: LoginState = {
+// initial state
+// --------
+const initialState: ProfileState = {
   userInformation: null
 };
+// --------
+// initial state
 
+// slice
+// --------
 export const signInSlice = createSlice({
-  name: "login",
+  name: "profile",
   initialState,
   reducers: {
     setUserInformation: (state, action: PayloadAction<UserInformation | null>) => {
@@ -31,9 +43,17 @@ export const signInSlice = createSlice({
     },
   },
 });
+// --------
+// slice
 
+// export reducers
+// --------
 export const { setUserInformation } = signInSlice.actions;
+// --------
+// export reducers
 
+// async thunks
+// --------
 export const getUserInformation = (): ThunkAction<Promise<boolean>, RootState, undefined, any> => {
   return (dispatch, getState) => {
     if (getState().signin.loggedIn) {
@@ -44,7 +64,6 @@ export const getUserInformation = (): ThunkAction<Promise<boolean>, RootState, u
           return true;
         },
         () => {
-          console.log('error signing in');
           dispatch(setUserInformation(null));
           return false;
         }
@@ -53,7 +72,14 @@ export const getUserInformation = (): ThunkAction<Promise<boolean>, RootState, u
     return new Promise<boolean>(() => false);
   }
 };
+// --------
+// async thunks
 
+// selectors
+// --------
 export const selectUserInformation = (state: RootState) => state.profile.userInformation;
+// --------
+// selectors
 
+// reducer export
 export const ProfileSlice = signInSlice.reducer;

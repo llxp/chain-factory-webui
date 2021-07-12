@@ -1,13 +1,16 @@
-import { AppBar, Grid, List, ListItem, SwipeableDrawer, Toolbar, Typography } from "@material-ui/core";
+import { AppBar, Button, Grid, List, ListItem, makeStyles, SwipeableDrawer, Toolbar, Typography } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import React, { useState } from "react";
-import { useLocation } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { Location } from 'history';
 import { Link } from "react-router-dom";
-import { MenuItem } from "../../../../models/MenuItem";
+import { MenuItem, Position } from "../../../../models/MenuItem";
 import { MainMenu } from "./MainMenu";
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
 
 import { activeMenuItems, currentPath } from "./utils";
+import { useSelector } from "react-redux";
+import { selectLoggedIn } from "../../../signin/components/signin/SignInSlice";
 
 function returnSmallMenuItem(menuItem: MenuItem, location: Location<unknown>) {
   const path = currentPath(location) + menuItem.path;
@@ -23,21 +26,64 @@ interface IProps {
   sites: Array<MenuItem>
 }
 
-export function DrawerComponent(props: IProps) {
-  const location = useLocation();
-  const menuItems = Array();
-  for (const value of activeMenuItems(props.sites, location)) {
-    menuItems.push(returnSmallMenuItem(value, location));
+function CustomMenuButton(props) {
+  const useStyles = makeStyles({
+    root: {
+      'padding-left': '10px',
+      'padding-right': '10px',
+      'margin-right': '0px',
+      'padding-top': '18px',
+      'padding-bottom': '18px'
+    },
+    label: {
+      textTransform: 'capitalize',
+    },
+  });
+
+  const styles = useStyles();
+  const history = useHistory();
+
+  const loggedIn = useSelector(selectLoggedIn);
+  if (!loggedIn || history.location.pathname === '/signin') {
+    return <></>;
   }
 
-  let [drawer, setDrawer] = useState(false);
+  return (<Button color="inherit" classes={{
+    root: styles.root
+  }} component={Link} to={props.to}><AccountBoxIcon /></Button>);
+};
+
+export default function Drawer(props: IProps) {
+  const location = useLocation();
+  const menuItems: Array<JSX.Element> = activeMenuItems(props.sites, location)
+  .filter((value) => { return !value.position || value.position === Position.Center}).map((value) => {
+    return returnSmallMenuItem(value, location);
+  });
+
+  const appBarItems: Array<JSX.Element> = activeMenuItems(props.sites, location)
+  .filter((value) => { return value.position && value.position === Position.Left && !value.customElement}).map((value) => {
+    return returnSmallMenuItem(value, location);
+  });
+
+  const appBarComponents: Array<JSX.Element> = activeMenuItems(props.sites, location)
+  .filter((value) => { return value.position && value.position === Position.Left && value.customElement}).map((value) => {
+    if (value.customElement) {
+      return React.createElement(value.customElement);
+    } else {
+      return <></>;
+    }
+  });
+
+  const [drawer, setDrawer] = useState(false);
 
   return (
     <div>
       <AppBar>
         <Toolbar>
-          <Grid container direction="row" justify="space-between" alignItems="center">
+          <Grid container direction="row" justifyContent="space-between" alignItems="center">
             <MenuIcon onClick={() => { setDrawer(true); }}/>
+            {appBarItems}
+            {appBarComponents}
             <Typography color="inherit" variant="h6"></Typography>
           </Grid>
         </Toolbar>
@@ -48,6 +94,7 @@ export function DrawerComponent(props: IProps) {
           <List>
             <MainMenu menuItems={props.sites}/>
             {menuItems}
+            <CustomMenuButton variant="text" color="inherit" component={Link} to="/signin"/>
           </List>
         </div>
       </SwipeableDrawer>

@@ -5,6 +5,6 @@ export { CoreComponent as SignIn } from './components/core/Core';
 export { routes } from './components/core/routes';
 
 export const ReducerMap = {
-    signin: SignInSlice,
-    profile: ProfileSlice
+  signin: SignInSlice,
+  profile: ProfileSlice
 };

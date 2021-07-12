@@ -1,4 +1,4 @@
-import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
+import { configureStore, ThunkAction, Action, combineReducers } from "@reduxjs/toolkit";
 import { ReducerMap as ReducerMapSite } from './site_modules';
 import { ReducerMap as ReducerMapCore } from './core_modules';
 
@@ -16,18 +16,25 @@ const loadState = () => {
 
 const peristedState = loadState();
 
+const combinedReducer = combineReducers({
+  ...ReducerMapCore,
+  ...ReducerMapSite
+});
+
+const rootReducer = (state, action) => {
+  if (action.type === 'signin/logout') {
+    state = undefined;
+  }
+  return combinedReducer(state, action);
+};
+
 export const store = configureStore({
   preloadedState: peristedState,
-  reducer: {
-    ...ReducerMapCore,
-    ...ReducerMapSite
-  },
+  reducer: rootReducer
 });
 
 const saveState = (state) => {
   try {
-    console.log('saveState');
-    console.log(state);
     const serializedState = JSON.stringify(state);
     localStorage.setItem('state', serializedState);
   } catch (e) {

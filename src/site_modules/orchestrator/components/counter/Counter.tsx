@@ -8,9 +8,6 @@ import {
   selectCount,
 } from "./counterSlice";
 import { Button, Input } from "@material-ui/core";
-import Box from "@material-ui/core/Box";
-import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
 import { selectToken } from "../../../../core_modules/signin/components/signin/SignInSlice";
 
 import './Counter.css';

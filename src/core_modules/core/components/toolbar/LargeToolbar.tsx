@@ -1,22 +1,26 @@
-import { useLocation } from "react-router";
-import { Location } from 'history';
+import { useHistory, useLocation } from "react-router";
 import { Link } from "react-router-dom";
-import { MenuItem } from "../../../../models/MenuItem";
+import { MenuItem, Position } from "../../../../models/MenuItem";
 import { activeMenuItems, currentPath } from "./utils";
-import React from "react";
+import React, { useState } from "react";
 import { AppBar, Button, Divider, makeStyles, Toolbar } from "@material-ui/core";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import { MainMenu } from "./MainMenu";
 
-function returnLargeMenuItem(menuItem: MenuItem, location: Location<unknown>) {
-  const path = currentPath(location) + menuItem.path;
+interface LargeMenuItemProps {
+  menuItem: MenuItem;
+}
+
+function LargeMenuItem(props: LargeMenuItemProps) {
+  const history = useHistory();
+  const path = currentPath(history.location) + props.menuItem.path;
   return (
     <>
-      <Divider orientation="vertical" variant="fullWidth" flexItem></Divider>
-      <CustomMenuButton component={Link} to={path} color="inherit">
-        {menuItem.text}
+      <Divider orientation="vertical" variant="fullWidth" flexItem key={path + 'd1'}/>
+      <CustomMenuButton component={Link} to={path} color="inherit" key={path + 'cmb'}>
+        {props.menuItem.text}
       </CustomMenuButton>
-      <Divider orientation="vertical" variant="fullWidth" flexItem></Divider>
+      <Divider orientation="vertical" variant="fullWidth" flexItem key={path + 'd2'}/>
     </>
   );
 }
@@ -52,33 +56,47 @@ function CustomToolbar(props) {
     },
   });
 
-  return (<Toolbar classes={{
-    root: useStyles().root
-  }}>{props.children}</Toolbar>);
+  return (<Toolbar classes={{root: useStyles().root}}>{props.children}</Toolbar>);
 };
 
 interface IProps {
   sites: Array<MenuItem>
 }
 
-export function LargeToolbarComponent(props: IProps) {
+export default function LargeToolbar(props: IProps) {
   const location = useLocation();
-  const menuItems = Array();
-  for (const value of activeMenuItems(props.sites, location)) {
-    menuItems.push(returnLargeMenuItem(value, location));
-  }
+  const menuItems: Array<JSX.Element> = activeMenuItems(props.sites, location)
+  .filter((value) => { return !value.position || value.position === Position.Center})
+  .map((value) => {
+    return <LargeMenuItem menuItem={value} key={value.path}/>;
+  });
+
+  const appBarItems: Array<JSX.Element> = activeMenuItems(props.sites, location)
+  .filter((value) => { return value.position && value.position === Position.Left && !value.customElement}).map((value) => {
+    return <LargeMenuItem menuItem={value} key={value.path}/>;
+  });
+
+  const appBarComponents: Array<JSX.Element> = activeMenuItems(props.sites, location)
+  .filter((value) => { return value.position && value.position === Position.Left && value.customElement}).map((value) => {
+    if (value.customElement) {
+      return React.createElement(value.customElement, {"key": value.path});
+    } else {
+      return <></>;
+    }
+  });
 
   return (
     <AppBar>
       <CustomToolbar>
-        <MainMenu menuItems={props.sites}/>
-        <Divider orientation="vertical" variant="fullWidth" flexItem></Divider>
-        <span style={{ flexGrow: 1 }}></span>
+        <MainMenu menuItems={props.sites} key="MainMenu"/>
+        <Divider orientation="vertical" variant="fullWidth" flexItem key="ctd1"/>
+        <span style={{ flexGrow: 0.05 }} key="cts0"/>{appBarItems}{appBarComponents}
+        <span style={{ flexGrow: 1 }} key="cts1"/>
         {menuItems}
-        <span style={{ flexGrow: 1 }}></span>
-        <Divider orientation="vertical" variant="fullWidth" flexItem></Divider>
-        <CustomMenuButton variant="text" color="inherit" component={Link} to="/signin">
-          <ExitToAppIcon />
+        <span style={{ flexGrow: 1 }} key="cts2"/>
+        <Divider orientation="vertical" variant="fullWidth" flexItem key="ctd2"/>
+        <CustomMenuButton variant="text" color="inherit" component={Link} to="/signin" key="ctcmb">
+          <AccountBoxIcon/>
         </CustomMenuButton>
       </CustomToolbar>
     </AppBar>

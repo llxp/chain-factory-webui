@@ -11,3 +11,8 @@
     padding-top: 18px;
     padding-bottom: 18px;
 }
+
+.MuiPopover-paper {
+    max-width: unset;
+    max-height: unset;
+}

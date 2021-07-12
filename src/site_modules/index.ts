@@ -1,19 +1,20 @@
+import { lazy } from 'react';
 import { MenuItem } from "../models/MenuItem";
-import { ReducerMap as ReducerMapAccess, Access, routes as accessRoutes } from "./access";
-import { ReducerMap as ReducerMapOrchestrator, Orchestrator, routes as orchestratorRoutes } from "./orchestrator";
+import { ReducerMap as ReducerMapOrchestrator, /*Orchestrator, */routes as orchestratorRoutes } from "./orchestrator";
+
+import { ProfileSections as OrchestratorProfileSections } from './orchestrator';
+
+const Orchestrator = lazy(() => import('./orchestrator').then(({ Orchestrator }) => ({ default: Orchestrator })));
+
+export const ProfileSections: Array<MenuItem> = [
+  ...OrchestratorProfileSections
+];
 
 export const ReducerMap = {
-  ...ReducerMapAccess,
   ...ReducerMapOrchestrator
 };
 
 export const modules: Array<MenuItem> = [
-  {
-    text: "Give Me Access",
-    path: "/access/",
-    element: Access,
-    menuItems: accessRoutes
-  },
   {
     text: "Orchestrator",
     path: "/orchestrator",

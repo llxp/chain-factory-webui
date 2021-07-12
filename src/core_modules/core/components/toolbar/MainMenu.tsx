@@ -1,12 +1,10 @@
 import React from "react";
-import { withStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from '@material-ui/styles';
 import Button from "@material-ui/core/Button";
 import Menu, { MenuProps } from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import DraftsIcon from "@material-ui/icons/Drafts";
 import SendIcon from "@material-ui/icons/Send";
 import PagesIcon from '@material-ui/icons/Pages';
 import { MenuItem as RouteItem } from "../../../../models/MenuItem";
@@ -14,23 +12,31 @@ import { useHistory } from "react-router";
 
 const StyledMenu = withStyles({
   paper: {
-    border: '1px solid #d3d4d5',
+    //border: '1px solid #d3d4d5',
     width: '100%',
+    //margin: '0px',
     height: '100%',
-    margin: '0px'
+    top: -16,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    maxHeight: 'unset',
+    maxWidth: 'unset',
+    position: 'unset'
   },
 })((props: MenuProps) => (
   <Menu
     elevation={0}
+    style={{'top': 0}}
     getContentAnchorEl={null}
-    anchorOrigin={{
+    /*anchorOrigin={{
       vertical: "bottom",
       horizontal: "left",
-    }}
-    transformOrigin={{
+    }}*/
+    /*transformOrigin={{
       vertical: "top",
       horizontal: "left",
-    }}
+    }}*/
     {...props}
   />
 ));
@@ -46,7 +52,7 @@ const StyledMenuItem = withStyles((theme) => ({
   },
 }))(MenuItem);
 
-export const StyledMenuButton = withStyles((theme) => ({
+export const StyledMenuButton = withStyles(() => ({
   root: {
     border: "0px solid #d3d4d5",
     'padding-top': '18px',
@@ -75,20 +81,19 @@ export function MainMenu(props: IProps) {
     };
   };
 
-  const list = Array();
-  for (const menuItem of props.menuItems) {
-    if (menuItem.text.length > 0) {
+  const list: Array<JSX.Element> = props.menuItems
+    .filter((menuItem) => menuItem.text && menuItem.path && menuItem.text.length > 0)
+    .map((menuItem) => {
       //<ListItemText primary={menuItem.text} />
-      list.push(
-        <StyledMenuItem onClick={handleClose(menuItem.path)}>
+      return (
+        <StyledMenuItem onClick={handleClose(menuItem.path ? menuItem.path : "")} key={menuItem.path}>
           <ListItemIcon>
-                <SendIcon fontSize="large" />
-              </ListItemIcon>
-              <ListItemText primary={menuItem.text}/>
+            <SendIcon fontSize="large" />
+          </ListItemIcon>
+          <ListItemText primary={menuItem.text}/>
         </StyledMenuItem>
       );
-    }
-  }
+    });
 
   return (
     <div>

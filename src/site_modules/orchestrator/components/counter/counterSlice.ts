@@ -61,11 +61,9 @@ export class Slice {
     return (dispatch) => {
       Slice.accessToken = token;
       Slice.apiService.get<AccessConfig>('/api/access/get_config/test_config').then((data: AccessConfig)=> {
-        console.log(data);
         dispatch(incrementByAmount(amount * 2));
         dispatch(setConfig(data));
       }, () => {
-        console.log('rejected');
         dispatch(incrementByAmount(amount));
       });
     }

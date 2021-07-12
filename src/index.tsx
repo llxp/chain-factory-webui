@@ -1,16 +1,23 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
 import { Core } from "./core_modules/core";
-import { MaterialUIComponent } from './core_modules/core/components/core/MaterialUI';
+
+const MaterialUIComponent = lazy(
+  () => {
+    return import('./core_modules/core/components/core/MaterialUI')
+      .then(({ MaterialUIComponent }) => ({ default: MaterialUIComponent }));
+  });
 
 ReactDOM.render(
   <React.StrictMode>
-    <MaterialUIComponent>
-      <Core/>
-    </MaterialUIComponent>
+    <Suspense fallback={<div>Loading... </div>}>
+      <MaterialUIComponent>
+          <Core/>
+      </MaterialUIComponent>
+    </Suspense>
   </React.StrictMode>,
   document.getElementById("root")
 );

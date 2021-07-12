@@ -4,8 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import { modules } from "../../../../modules";
 
 
-interface RouterProps { }
-export function RouterWrapper(props: React.PropsWithChildren<RouterProps>) {
+interface IRouterProps { }
+export default function RouterWrapper(props: React.PropsWithChildren<IRouterProps>) {
   return (
     <BrowserRouter>
     {props.children}
@@ -14,10 +14,7 @@ export function RouterWrapper(props: React.PropsWithChildren<RouterProps>) {
 }
 
 export function RouterRoutes() {
-  const list: Array<JSX.Element> = [];
-  for (const route of modules) {
-    list.push(<Route path={route.path} component={route.element} />);
-  }
+  const list: Array<JSX.Element> = modules.map((route) => <Route path={route.path} component={route.element} key={route.path}/>);
   return <Switch>{list}</Switch>;
 }
 
@@ -25,7 +22,7 @@ export function BasicRoutes() {
   return (
     <>
       <Route exact path="/">
-        <Redirect to="/access" />
+        <Redirect to="/orchestrator" />
       </Route>
     </>
   )

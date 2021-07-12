@@ -17,7 +17,7 @@ function RouterRoutesComponent() {
   const list: Array<JSX.Element> = [];
   for (const route of routes) {
     const path = currentPath(location) + route.path;
-    list.push(<Route exact path={path} component={route.element} />);
+    list.push(<Route exact path={path} component={route.element} key={path}/>);
   }
   return <Switch>{list}</Switch>;
 }
@@ -32,3 +32,5 @@ export function Core() {
     </>
   );
 };
+
+export default Core;

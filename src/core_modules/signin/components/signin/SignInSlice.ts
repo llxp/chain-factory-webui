@@ -1,8 +1,7 @@
-import { Fitch, JsonObject } from "@fiizy/fitch";
+import { Fitch } from "@fiizy/fitch";
 import { Action, createSlice, PayloadAction, ThunkAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { environment } from "../core/environment";
-import { AppThunk, RootState } from "../../../../store";
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import { RootState } from "../../../../store";
 import { useDispatch } from "react-redux";
 
 const apiService = new Fitch({
@@ -40,13 +39,11 @@ const setToken = signInSlice.actions.setToken;
 export const signInAsync = (username: string, password: string): ThunkAction<Promise<boolean>, RootState, undefined, any> => (dispatch) => {
   return apiService.post<string>('/api/login/login', {username, password}).then(
     (data: string) => {
-      console.log('token: ' + data);
       dispatch(setToken(data));
       dispatch(setLoggedIn(true));
       return true;
     },
     () => {
-      console.log('error signing in');
       dispatch(setLoggedIn(false));
       return false;
     }
@@ -57,6 +54,9 @@ export const signOutAsync = (): ThunkAction<Promise<boolean>, RootState, undefin
   return (dispatch) => {
     dispatch(setToken(''));
     dispatch(setLoggedIn(false));
+    dispatch({
+      type: 'signin/logout'
+    })
     return new Promise<boolean>(() => true);
   }
 }

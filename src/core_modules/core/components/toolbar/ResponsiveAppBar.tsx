@@ -2,15 +2,16 @@ import React, { useEffect, useState } from "react";
 import { MenuItem } from "../../../../models/MenuItem";
 import { RouteComponentProps, withRouter } from "react-router";
 import './style/ResponsiveAppBar.css';
-import { DrawerComponent } from "./Drawer";
-import { LargeToolbarComponent } from "./LargeToolbar";
+import Drawer from "./Drawer";
+import LargeToolbar from "./LargeToolbar";
+import { isMobile } from 'react-device-detect';
 
 interface IProps extends RouteComponentProps {
   sites: Array<MenuItem>;
 }
 
 function shouldShowDrawer() {
-  return window.innerWidth <= 600;
+  return isMobile;
 }
 
 function resizeListener(setDrawerActivate: React.Dispatch<React.SetStateAction<boolean>>) {
@@ -21,24 +22,25 @@ function resizeListener(setDrawerActivate: React.Dispatch<React.SetStateAction<b
   }
 }
 
-function SetResizeListener(setDrawerActivate: React.Dispatch<React.SetStateAction<boolean>>) {
+export function ResAppBar(props: IProps) {
+  let [drawerActivate, setDrawerActivate] = useState(shouldShowDrawer());
+
   useEffect(() => {
+    if (shouldShowDrawer()) {
+      setDrawerActivate(true);
+    } else {
+      setDrawerActivate(false);
+    }
     window.addEventListener('resize', () => resizeListener(setDrawerActivate));
     return () => {
       window.removeEventListener('resize', () => resizeListener(setDrawerActivate));
     }
-  }, []);
-}
-
-export function ResAppBar(props: IProps) {
-  let [drawerActivate, setDrawerActivate] = useState(shouldShowDrawer());
-
-  SetResizeListener(setDrawerActivate);
+  }, [setDrawerActivate]);
 
   if (drawerActivate) {
-    return <DrawerComponent sites={props.sites}></DrawerComponent>;
+    return <Drawer sites={props.sites}></Drawer>;
   } else {
-    return <LargeToolbarComponent sites={props.sites}></LargeToolbarComponent>;
+    return <LargeToolbar sites={props.sites}></LargeToolbar>;
   }
 }
 

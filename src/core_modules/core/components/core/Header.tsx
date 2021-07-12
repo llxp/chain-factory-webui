@@ -4,7 +4,7 @@ import { modules } from "../../../../modules";
 
 export function Header() {
   return (
-    <header className="App-header">
+    <header style={{ height: 60 }}>
       <ResponsiveAppBar sites={modules}/>
     </header>
   );

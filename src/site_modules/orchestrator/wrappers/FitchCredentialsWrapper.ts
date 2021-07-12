@@ -1,17 +1,19 @@
-import { Fitch, JsonObject } from "@fiizy/fitch";
+import { Fitch, HttpResponse, JsonObject } from "@fiizy/fitch";
 
 export class FitchCredentialsWrapper {
   private token: string = '';
-  private static token2: string = '';
   private apiService: Fitch;
+  private redirectCallback: { (): void };
 
-  constructor(apiEndpoint: string) {
+  constructor(apiEndpoint: string, redirectCallback: { (): void }) {
     const authHeader = (request: JsonObject): JsonObject => { return this.authHeader(request)};
     this.apiService = new Fitch({
       baseURL: apiEndpoint,
       transformRequest: [authHeader],
+      transformResponse: [],
       headers: { 'accept-encoding': 'gzip' }
     });
+    this.redirectCallback = redirectCallback;
   }
 
   private authHeader(request: JsonObject): JsonObject {
@@ -22,31 +24,71 @@ export class FitchCredentialsWrapper {
     return request;
   }
 
-  public get<T>(path: string, token: string) {
-    console.log('performing get request');
-    FitchCredentialsWrapper.token2 = token;
+  public async get<T>(path: string, token: string): Promise<T> {
     this.token = token;
-    console.log(FitchCredentialsWrapper.token2);
-    return this.apiService.get<T>(path);
+    return new Promise<T>((resolve, reject) => {
+      this.apiService.get<T>(path).then((data: T) => {
+        resolve(data);
+      }, (response: HttpResponse<T>) => {
+        if (response.status === 403) {
+          this.redirectCallback();
+        }
+        reject(response);
+      });
+    });
   }
 
-  public delete<T>(path: string, token: string) {
-    FitchCredentialsWrapper.token2 = token;
-    return this.apiService.delete<T>(path);
+  public async delete<T>(path: string, token: string) {
+    return new Promise<T>((resolve, reject) => {
+      this.apiService.delete<T>(path).then((data: T) => {
+        resolve(data);
+      }, (response: HttpResponse<T>) => {
+        if (response.status === 403) {
+          this.redirectCallback();
+        }
+        reject(response);
+      });
+    });
   }
 
-  public post<T>(path: string, body: any, token: string) {
-    FitchCredentialsWrapper.token2 = token;
-    return this.apiService.post<T>(path, body);
+  public async post<T>(path: string, body: any, token: string) {
+    return new Promise<T>((resolve, reject) => {
+      this.apiService.post<T>(path, body).then((data: T) => {
+        resolve(data);
+      }, (response: HttpResponse<T>) => {
+        if (response.status === 403) {
+          this.redirectCallback();
+        }
+        reject(response);
+      });
+    });
   }
 
-  public put<T>(path: string, body: any, token: string) {
-    FitchCredentialsWrapper.token2 = token;
-    return this.apiService.put<T>(path, body);
+  public async put<T>(path: string, body: any, token: string) {
+    return new Promise<T>((resolve, reject) => {
+      this.apiService.put<T>(path, body).then((data: T) => {
+        resolve(data);
+      }, (response: HttpResponse<T>) => {
+        if (response.status === 403) {
+          this.redirectCallback();
+        }
+        reject(response);
+      });
+    });
   }
 
-  public patch<T>(path: string, body: any, token): Promise<T> {
-    FitchCredentialsWrapper.token2 = token;
-    return this.apiService.patch<T>(path, body);
+  public async patch<T>(path: string, body: any, token): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      this.apiService.patch<T>(path, body).then((data: T) => {
+        resolve(data);
+      }, (response: HttpResponse<T>) => {
+        if (response.status === 403) {
+          this.redirectCallback();
+        }
+        reject(response);
+      });
+    });
   }
 };
+
+export default FitchCredentialsWrapper;

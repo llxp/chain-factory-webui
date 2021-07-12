@@ -3,11 +3,11 @@ import { useSelector } from "react-redux";
 import { SnackbarProvider } from "notistack";
 import { SignIn } from "../signin/SignIn";
 import { selectLoggedIn } from "../signin/SignInSlice";
-import { Profile } from "../profile/Profile";
+import { ProfileOverview } from "../profile/ProfileOverview";
 
 function DisplaySignInOrSignOut() {
   const loggedIn = useSelector(selectLoggedIn);
-  return !loggedIn ? <SignIn/> : <Profile/>;
+  return !loggedIn ? <SignIn/> : <ProfileOverview/>;
 }
 
 export function CoreComponent() {
