@@ -9,12 +9,13 @@ import ListItemType from "../models/ListItemType";
 import CollapsedTable from "../../../shared_components/CollapsedTable/CollapsedTable";
 import { ICollapsedTableRowProps } from "../../../shared_components/CollapsedTable/CollapsedTableRow";
 import WorkflowSubTable from "./WorkflowSubTable";
-import { getWorkflows, stopWorkflow } from "./WorkflowTable.service";
+import { abortWorkflow, getWorkflows, getWorkflowStatus, stopWorkflow } from "./WorkflowTable.service";
 import workflowsToListItemType from "./utils/WorkflowsToListItemType";
 import PagedWorkflows from "../models/PagedWorkflows";
 import Workflow from "../models/Workflow";
 import uuid from 'react-uuid';
 import { store } from "../../../../../store";
+import WorkflowStatus from "../models/WorkflowStatus";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,10 +54,10 @@ export default function WorkflowTable(props: IProps) {
       ).then(
         (ptn: PagedWorkflows) => {
           setOpen(false);
-          console.log(ptn);
+          //console.log(ptn);
           return {
             rows: ptn.workflows.map<ListItemType>((value: Workflow) =>
-              workflowsToListItemType(value.workflow_id, value.created_date, value.tasks, value.tags || [], value.namespace)
+              workflowsToListItemType(value.workflow_id, value.created_date, value.tasks, value.tags || [], value.namespace, value.status)
             ),
             total_count: ptn.total_count,
           };
@@ -120,8 +121,38 @@ export default function WorkflowTable(props: IProps) {
     );
   };
 
+  const handleAbort = (
+    workflow_id: string,
+    namespace: string
+  ) => {
+    // start the task
+    // show a spinner until task has been started successfully
+    // if the task has been started or it has been errored, show a notification
+    setOpen(true);
+    reduxDispatch(
+      abortWorkflow(namespace, workflow_id)
+    ).then(
+      () => {
+        setOpen(false);
+        enqueueSnackbar("Task aborted!", {
+          variant: "success",
+          autoHideDuration: 3000,
+          action: snackbarAction,
+        });
+      },
+      () => {
+        setOpen(false);
+        enqueueSnackbar("Error aborting task!", {
+          variant: "error",
+          autoHideDuration: 3000,
+          action: snackbarAction,
+        });
+      }
+    );
+  };
+
   const handleRefresh = () => {
-    console.log('refetch');
+    //console.log('refetch');
     refetch();
   };
 
@@ -131,16 +162,16 @@ export default function WorkflowTable(props: IProps) {
   };
 
   const handlePageChange = (page: number) => {
-    console.log(page);
+    //console.log(page);
     setPage(page);
   };
 
   const handleRowsPerPageChange = (rowsPerPage: number) => {
-    console.log(rowsPerPage);
+    //console.log(rowsPerPage);
     setRowsPerPage(rowsPerPage);
   };
 
-  if (error || isLoading) {
+  if (error || isLoading /*|| queryResultWorkflowStatus.error || queryResultWorkflowStatus.isLoading*/) {
     return (
       <>
         <CollapsedTable
@@ -169,17 +200,24 @@ export default function WorkflowTable(props: IProps) {
         //tasks={rowData.tasks}
         namespace={rowData.namespace}
         onStop={handleStop}
+        onAbort={handleAbort}
         key={rowData.namespace + rowData.workflow_id}
+        //workflowStatus={queryResultWorkflowStatus?.data?.find(w => w.workflow_id === rowData.workflow_id)?.status || ''}
+        //tasks={queryResultWorkflowStatus?.data?.find(w => w.workflow_id === rowData.workflow_id)?.tasks || []}
       />);
       rows.push({
         firstKey: "created_date",
-        row: {...rowData.data, "namespace": rowData.namespace},
+        row: {
+          ...rowData.data,
+          "namespace": rowData.namespace,
+          //"status": queryResultWorkflowStatus.data?.filter((workflow) => workflow.workflow_id === rowData.workflow_id)?.[0]?.status,
+        },
         rowComponent: rowComponent,
         key: rowData.namespace + rowData.workflow_id  + uuid()
       });
     }
 
-    console.log(page, data.total_count, rowsPerPage);
+    //console.log(page, data.total_count, rowsPerPage);
 
     return (
       <>
@@ -187,8 +225,8 @@ export default function WorkflowTable(props: IProps) {
         <CollapsedTable
           firstColumnKey="created_date"
           rows={rows}
-          headerLabels={["Timestamp", "Entry Task", "Tags", "Namespace"]}
-          rowColumnOrder={['created_date', 'entry_task', 'tags', 'namespace']}
+          headerLabels={["Timestamp", "Status", "Entry Task", "Tags", "Namespace"]}
+          rowColumnOrder={['created_date', 'status', 'entry_task', 'tags', 'namespace']}
           firstColumnLabel="Timestamp"
           onRefresh={handleRefresh}
           onSearch={handleSearch}

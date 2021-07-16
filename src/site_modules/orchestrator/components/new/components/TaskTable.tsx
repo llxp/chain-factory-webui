@@ -47,7 +47,7 @@ export function TaskTable(props: IProps) {
       ).then(
         (ptn: PagedTaskNodes) => {
           setOpen(false);
-          console.log(ptn);
+          //console.log(ptn);
           return {
             rows: ptn.task_nodes.map<ListItemType>((value) =>
               tasksToListItemType(value.task, value.node_names, value.namespace)
@@ -146,7 +146,7 @@ export function TaskTable(props: IProps) {
   };
 
   const handleRefresh = () => {
-    console.log('refetch');
+    //console.log('refetch');
     refetch();
   };
 
@@ -155,12 +155,12 @@ export function TaskTable(props: IProps) {
   };
 
   const handlePageChange = (page: number) => {
-    console.log(page);
+    //console.log(page);
     setPage(page);
   };
 
   const handleRowsPerPageChange = (rowsPerPage: number) => {
-    console.log(rowsPerPage);
+    //console.log(rowsPerPage);
     setRowsPerPage(rowsPerPage);
   };
 
@@ -189,7 +189,7 @@ export function TaskTable(props: IProps) {
     const tempRows: Array<ListItemType> = data["rows"];
     for (const rowData of tempRows) {
       if (namespace === 'default') {
-        console.log(rowData);
+        //console.log(rowData);
         rows.push({
           firstKey: "name",
           row: {...rowData.data, "namespace": rowData.namespace},
@@ -225,7 +225,7 @@ export function TaskTable(props: IProps) {
     }
   }
 
-  console.log(rows);
+  //console.log(rows);
 
   if (namespace === 'default') {
     return (

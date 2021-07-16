@@ -1,5 +1,5 @@
-import { Avatar, Backdrop, Button, CircularProgress, createStyles, Divider, Grid, Hidden, List, ListItem, ListItemAvatar, ListItemText, makeStyles, TextField, Theme, Typography } from '@material-ui/core';
-import React, { useState } from 'react';
+import { Avatar, Button, CircularProgress, createStyles, Divider, Grid, Hidden, List, ListItem, ListItemAvatar, ListItemText, makeStyles, TextField, Theme, Typography, Paper, Badge, Card, CardContent } from '@material-ui/core';
+import React, { useEffect, useRef, useState } from 'react';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Combobox from '../../../../../shared_components/Combobox';
 import Task from '../models/Task';
@@ -27,11 +27,44 @@ const useStyles = makeStyles((theme: Theme) =>
     inline: {
       display: 'inline',
     },
+    block: {
+      display: 'block',
+    },
+    roundShapeRunning: {
+      backgroundColor: '#ffff00',
+      width: 40,
+      height: 40,
+      display: 'inline-block',
+      borderRadius: '50%',
+      animation: `$myEffect 1.5s linear infinite`,
+    },
+    roundShapeSuccess: {
+      backgroundColor: '#00ff00',
+      width: 40,
+      height: 40,
+      display: 'inline-block',
+      borderRadius: '50%',
+      float: 'left',
+    },
+    roundShapeFailure: {
+      backgroundColor: '#ff0000',
+      width: 40,
+      height: 40,
+      display: 'inline-block',
+      borderRadius: '50%',
+      float: 'left',
+    },
+    "@keyframes myEffect": {
+      "50%": {
+        opacity: 0.3
+      },
+    }
   }),
 );
 
-const TaskComponent = ({task_id, args, name, created_date, searchTerm}) => {
+const TaskComponent = ({task_id, args, name, created_date, searchTerm, status}) => {
   const classes = useStyles();
+  const scrollRef = useRef<HTMLLIElement>(null);
   const reduxDispatch = useReduxDispatch();
   const namespace = useSelector(selectNamespace);
   const page = 0;
@@ -47,7 +80,7 @@ const TaskComponent = ({task_id, args, name, created_date, searchTerm}) => {
         getTaskLogs(namespace, page, rowsPerPage, searchTerm, task_id)
       ).then(
         (ptn: PagedTaskLogs) => {
-          console.log(ptn);
+          //console.log(ptn);
           return {
             rows: ptn.log_lines,
             total_count: ptn.total_count,
@@ -67,14 +100,43 @@ const TaskComponent = ({task_id, args, name, created_date, searchTerm}) => {
     }
   );
 
+  useEffect(() => {
+    if (scrollRef && scrollRef.current && scrollRef.current !== null) {
+      const ref = scrollRef.current;
+      if (ref) {
+        ref.scrollIntoView();
+      }
+    }
+  }, [data?.rows]);
+
   if (isLoading) {
     return <CircularProgress/>;
+  }
+
+  const style={};
+  if (status[0]?.status) {
+    switch(status[0]?.status?.toLowerCase()) {
+      case 'task':
+      case 'none':
+        style['backgroundColor'] = '#00FF00';
+        break;
+      case 'exception':
+      case 'timeout':
+      case 'false':
+      case 'aborted':
+      case 'stopped':
+        style['backgroundColor'] = '#FF0000';
+        break;
+      case 'running':
+        style['backgroundColor'] = '#FFFF00';
+        break;
+    }
   }
 
   return (
     <ListItem alignItems="flex-start">
       <ListItemAvatar>
-        <Avatar alt="Task" src="/static/images/avatar/1.jpg" />
+        <Avatar alt={status[0]?.status} style={style} src="/static/images/avatar/1.jpg"/>
       </ListItemAvatar>
       <ListItemText
         primary={created_date}
@@ -97,9 +159,18 @@ const TaskComponent = ({task_id, args, name, created_date, searchTerm}) => {
             >
               Arguments: { JSON.stringify(args) }
             </Typography>
+            <br/>
+            <Typography
+              component="span"
+              variant="body2"
+              className={classes.inline}
+              color="textPrimary"
+            >
+              Status: {status[0]?.status}
+            </Typography>
             <List style={{maxHeight: 200, overflow: 'auto'}}>
               {data?.rows.map((row) => {
-                return <li key={'1' + uuid()}>{row}</li>;
+                return <li ref={scrollRef} key={'1' + uuid()}>{row}</li>;
               })}
             {/* <li> — I'll be in your neighborhood doing errands this… — I'll be in your neighborhood doing errands this… — I'll be in your neighborhood doing errands this… — I'll be in your neighborhood doing errands this… — I'll be in your neighborhood doing errands this…</li>
             <li> — I'll be in your neighborhood doing errands this… — I'll be in your neighborhood doing errands this… — I'll be in your neighborhood doing errands this… — I'll be in your neighborhood doing errands this… — I'll be in your neighborhood doing errands this…</li>
@@ -124,12 +195,14 @@ const TaskComponent = ({task_id, args, name, created_date, searchTerm}) => {
 };
 
 export interface IWorkflowSubTableProps {
-  onStop?: {
-    (
+  onStop?: (
       workflow_id: string,
       namespace: string
-    ): void;
-  };
+    ) => void;
+  onAbort?: (
+    workflow_id: string,
+    namespace: string
+  ) => void;
   workflow_id: string;
   //tasks: Array<Task>;
   namespace: string;
@@ -138,13 +211,17 @@ export interface IWorkflowSubTableProps {
 export function WorkflowSubTable(props: IWorkflowSubTableProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const reduxDispatch = useReduxDispatch();
+  const classes = useStyles();
 
   const handleStop = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.stopPropagation();
     props.onStop?.(props.workflow_id, props.namespace);
   };
 
-  const classes = useStyles();
+  const handleAbort = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.stopPropagation();
+    props.onAbort?.(props.workflow_id, props.namespace);
+  };
 
   const { isLoading, error, data, refetch } = useQuery<{
     rows: Array<Task>;
@@ -156,7 +233,7 @@ export function WorkflowSubTable(props: IWorkflowSubTableProps) {
         getWorkflowTasks(props.namespace, 0, 10000, searchTerm, props.workflow_id)
       ).then(
         (ptn: PagedWorkflowTasks) => {
-          console.log(ptn);
+          //console.log(ptn);
           return {
             rows: ptn.tasks,
             total_count: ptn.total_count,
@@ -176,65 +253,106 @@ export function WorkflowSubTable(props: IWorkflowSubTableProps) {
     }
   );
 
-  const queryStateResult = useQuery<WorkflowStatus>(
+  const queryStatusResult = useQuery<WorkflowStatus[]>(
     ["WorkflowStatus", props.workflow_id],
     () => {
       return reduxDispatch(
         getWorkflowStatus(props.namespace, props.workflow_id)
       ).then(
-        (ptn: WorkflowStatus) => {
-          console.log(ptn);
+        (ptn: WorkflowStatus[]) => {
+          //console.log(ptn);
           return ptn;
         },
         () => {
-          return { 'status': 'Running', 'tasks': []};
+          return [];
         }
       );
     }, {
       refetchOnWindowFocus: false,
       refetchInterval: 1000,
       refetchIntervalInBackground: true,
+      //enabled: data?.rows
     }
   );
 
-  if (isLoading || queryStateResult.isLoading) {
+  if (isLoading || queryStatusResult.isLoading) {
     return <CircularProgress/>;
   }
+
+  const queryStatusResultData = queryStatusResult?.data || [];
+
+  const StatusIndicator = (props) => {
+    switch(queryStatusResultData[0]?.status.toLowerCase()) {
+      case 'task':
+      case 'none':
+        return <div className={classes.roundShapeSuccess} {...props}/>;
+      case 'exception':
+      case 'timeout':
+      case 'false':
+      case 'aborted':
+      case 'stopped':
+        return <div className={classes.roundShapeFailure} {...props}/>;
+      case 'running':
+        return <div className={classes.roundShapeRunning} {...props}/>;
+    }
+    return <></>;
+  };
   
   return (
     <div>
       <Divider variant="middle" component="div" light={true}/>
       <Grid container spacing={0} justifyContent="flex-start" wrap="wrap" alignItems="flex-start" direction="row" style={{marginTop: 20, marginBottom: 20}}>
-        <Grid item md={2}>
-          {/* <SearchBox onSearch={setSearchTerm} value={searchTerm}/><br/><br/> */}
-          <Button variant="contained" color="primary" onClick={handleStop}>Stop</Button>
-          <Button variant="contained" color="primary" onClick={handleStop}>Abort</Button>
-          <RefreshButton onRefresh={refetch}/>
+        <Grid container md={12}>
+          <Grid item md={8} direction="row-reverse">
+              <StatusIndicator/>
+          </Grid>
+          <Grid item md={2}>
+          <Paper>{/* <Typography
+                component="span"
+                variant="body2"
+                className={classes.inline}
+                color="textPrimary"
+              > */}
+                Workflow Status: {queryStatusResultData[0]?.status}
+              {/* </Typography> */}
+              </Paper>
+          </Grid>
+          <Grid item md={2}>
+            {/* <SearchBox onSearch={setSearchTerm} value={searchTerm}/><br/><br/> */}
+            <Button variant="contained" color="primary" size="small" onClick={handleStop} disabled={queryStatusResultData[0]?.status !== 'Running'}>Stop</Button>
+            <Button variant="contained" color="primary" size="small" onClick={handleAbort} disabled={queryStatusResultData[0]?.status !== 'Running'}>Abort</Button>
+            <RefreshButton onRefresh={refetch}/>
+          </Grid>
         </Grid>
-        <Grid item md={10} style={{ flexShrink: 1, wordWrap: 'break-word' }}>
-          {
-            /*
-            the logs should be presented in the following form:
-            Task name:
-            \t\tlog line
-            \t\tlog line
-            \t\tlog line...
-            Task name:
-            \t\tlog line
-            \t\tlog line
-            \t\tlog line...
-            ...
-            */
-          }
+        <Grid container md={12}>
+          <Grid item md={1}></Grid>
+          <Grid item md={11} style={{ flexShrink: 1, wordWrap: 'break-word' }}>
+            {
+              /*
+              the logs should be presented in the following form:
+              Task name:
+              \t\tlog line
+              \t\tlog line
+              \t\tlog line...
+              Task name:
+              \t\tlog line
+              \t\tlog line
+              \t\tlog line...
+              ...
+              */
+            }
 
-          <List className={classes.root}>
-            {data?.rows.map((task) => {
-              return (<>
-                <TaskComponent task_id={task.task_id} args={task.arguments} name={task.name} created_date={task.received_date} searchTerm={searchTerm}/>
-                <Divider variant="inset" component="li"/>
-              </>);
-            })}
-          </List>
+            <List className={classes.root}>
+              {data?.rows.map((task) => {
+                return (
+                  <>
+                    <TaskComponent task_id={task.task_id} args={task.arguments} name={task.name} created_date={task.received_date} searchTerm={searchTerm} status={queryStatusResultData[0]?.tasks.filter((task_status) => task_status.task_id === task.task_id)}/>
+                    <Divider variant="inset" component="li"/>
+                  </>
+                );
+              })}
+            </List>
+          </Grid>
         </Grid>
       </Grid>
     </div>

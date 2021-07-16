@@ -44,7 +44,7 @@ export interface StartTaskResponse {
 
 export function startTask(namespace, node, task, taskArguments, tags): ThunkAction<Promise<StartTaskResponse>, RootState, undefined, any> {
   return thunkTemplate((token: string) => {
-    console.log(namespace, node, task, taskArguments, tags);
+    //console.log(namespace, node, task, taskArguments, tags);
     return apiService.post<StartTaskResponse>(`/api/orchestrator/new_task?namespace=${namespace}&node_name=${node}&task=${task}`, {'arguments': taskArguments, 'tags': tags}, token).then((data: StartTaskResponse) => {
       console.log(data);
     });

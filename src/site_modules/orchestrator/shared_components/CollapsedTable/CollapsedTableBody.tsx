@@ -61,7 +61,7 @@ export default function CollapsedTableBody(props: ICollapsedTableBodyProps) {
     setExpandedRows(newExpanded);
   };
 
-  console.log(rows);
+  //console.log(rows);
 
   const tableRows = rows.map((row) => (
     <CollapsedTableRow
@@ -76,7 +76,7 @@ export default function CollapsedTableBody(props: ICollapsedTableBodyProps) {
     />
   ));
 
-  console.log(tableRows);
+  //console.log(tableRows);
 
   return (
     <TableBody>

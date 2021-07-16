@@ -17,7 +17,7 @@ export const namespaceSlice = createSlice({
   initialState,
   reducers: {
     setNamespace: (state, action: PayloadAction<string>) => {
-      console.log(action.payload);
+      //console.log(action.payload);
       state.namespace = action.payload;
     }
   },

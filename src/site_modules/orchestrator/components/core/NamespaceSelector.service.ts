@@ -13,10 +13,10 @@ const apiService: FitchCredentialsWrapper = new FitchCredentialsWrapper(environm
 
 export function getNamespaces(): ThunkAction<Promise<Array<Namespace>>, RootState, undefined, any> {
   return thunkTemplate((token: string) => {
-    console.log(token);
+    //console.log(token);
     return apiService.get<Namespace[]>('/api/orchestrator/namespaces', token).then(
       async (data: Namespace[]) => {
-        console.log(data);
+        //console.log(data);
         return data;
       }, () => {
         console.log('error');

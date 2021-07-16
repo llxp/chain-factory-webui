@@ -67,7 +67,7 @@ export default function CollapsedTable(props: ICollapsedTableProps) {
     if (checked) {
       setSelectedRows(
         rows.map((row) => {
-          return row.row[firstColumnKey];
+          return row.key;
         })
       );
       return;
@@ -81,7 +81,7 @@ export default function CollapsedTable(props: ICollapsedTableProps) {
     if (expandedAll) {
       setExpandedRows(
         rows.map((row) => {
-          return row.row[firstColumnKey];
+          return row.key;
         })
       );
       return;
@@ -91,10 +91,9 @@ export default function CollapsedTable(props: ICollapsedTableProps) {
 
   const heightMobile = getWindowDimensions().height - 190;
   const heightDesktop = getWindowDimensions().height - 250;
-
-  console.log(count, page, rowsPerPage);
-  console.log(Math.floor(count / rowsPerPage));
-  console.log((Math.floor(count / rowsPerPage) <= 0 || (page + 1) >= Math.floor(count / rowsPerPage)));
+  const pages = Math.ceil(count / rowsPerPage);
+  //console.log(Math.floor(count / rowsPerPage));
+  //console.log((Math.floor(count / rowsPerPage) <= 0 || (page + 1) >= Math.floor(count / rowsPerPage)));
 
   return (
     <div>
@@ -147,8 +146,8 @@ export default function CollapsedTable(props: ICollapsedTableProps) {
           />
         </Grid>
         <Grid item md={2} style={{ backgroundColor: "#d0d0d0" }}>
-          <IconButton size="medium" onClick={() => { props.onPageChange?.(0); }} disabled={(Math.floor(count / rowsPerPage) <= 0 || page <= 0)}><SkipPreviousIcon/></IconButton>
-          <IconButton size="medium" onClick={() => { props.onPageChange?.(Math.floor(count / rowsPerPage)); }} disabled={(Math.floor(count / rowsPerPage) <= 0 || (page + 1) >= Math.floor(count / rowsPerPage))}><SkipNextIcon/></IconButton>
+          <IconButton size="medium" onClick={() => { props.onPageChange?.(0); }} disabled={(pages <= 0 || page <= 0)}><SkipPreviousIcon/></IconButton>
+          <IconButton size="medium" onClick={() => { props.onPageChange?.(pages - 1); }} disabled={(pages <= 0 || (page + 1) >= pages)}><SkipNextIcon/></IconButton>
         </Grid>
       </Grid>
     </div>

@@ -96,24 +96,29 @@ export function getWorkflowTasks(
 
 export function getWorkflowStatus(
   namespace: string,
-  workflow_id: string
-): ThunkAction<Promise<WorkflowStatus>, RootState, undefined, any> {
+  workflow_id: string | string[]
+): ThunkAction<Promise<WorkflowStatus[]>, RootState, undefined, any> {
   return thunkTemplate(
     (token: string) => {
-      return apiService.get<WorkflowStatus>(
-          `/api/orchestrator/workflow_status?namespace=${namespace}&workflow_id=${workflow_id}`,
-          token
-        ).then(
-          async (data: WorkflowStatus) => {
-            return data;
-          },
-          () => {
-            console.log("error");
-            return Promise.reject({});
-          }
-        );
+      const url = `/api/orchestrator/workflow_status?namespace=${namespace}`;
+      if (!Array.isArray(workflow_id)) {
+        workflow_id = [workflow_id];
+      }
+      const workflow_id_string = workflow_id.map(id => `workflow_id=${id}`).join("&");
+      return apiService.get<WorkflowStatus[]>(
+        `${url}&${workflow_id_string}`,
+        token
+      ).then(
+        async (data: WorkflowStatus[]) => {
+          return data;
+        },
+        () => {
+          console.log("error");
+          return Promise.reject([]);
+        }
+      );
     },
-    () => new Promise(() => {})
+    () => new Promise(() => [])
   );
 }
 
@@ -137,10 +142,39 @@ export function stopWorkflow(
           token
         )
         .then((data: StopWorkflowResponse) => {
-          console.log(data);
+          //console.log(data);
         });
     },
     new Promise<StopWorkflowResponse>(() => {
+      return { status: "error" };
+    })
+  );
+}
+
+export interface AbortWorkflowResponse {
+  status: string;
+}
+
+export function abortWorkflow(
+  namespace: string,
+  workflow_id: string
+): ThunkAction<Promise<AbortWorkflowResponse>, RootState, undefined, any> {
+  return thunkTemplate(
+    (token: string) => {
+      return apiService
+        .post<AbortWorkflowResponse>(
+          "/api/orchestrator/abort_workflow?namespace=" +
+            namespace +
+            "&workflow_id=" +
+            workflow_id,
+          {},
+          token
+        )
+        .then((data: AbortWorkflowResponse) => {
+          //console.log(data);
+        });
+    },
+    new Promise<AbortWorkflowResponse>(() => {
       return { status: "error" };
     })
   );

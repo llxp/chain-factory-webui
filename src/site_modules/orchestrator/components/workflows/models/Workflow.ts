@@ -8,4 +8,5 @@ export default interface Workflow {
   tasks: Array<Task>;
   tags?: string[];
   namespace: string;
+  status: string;
 };

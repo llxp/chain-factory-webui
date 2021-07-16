@@ -25,12 +25,12 @@ export default function NamespaceSelector() {
   const namespace = useSelector(selectNamespace);
   const dispatch = useDispatch();
   
-  console.log(data);
+  //console.log(data);
 
   if (data) {
     const handleChange = (event: React.ChangeEvent<{}>, value: any, reason: AutocompleteChangeReason, details?: AutocompleteChangeDetails<any> | undefined) => {
       dispatch(setNamespace(value));
-      console.log(namespace);
+      //console.log(namespace);
     };
 
     return <Combobox options={data} label="Select Namespace" handleChange={handleChange}/>
