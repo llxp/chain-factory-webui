@@ -1,6 +1,10 @@
 import { configureStore, ThunkAction, Action, combineReducers } from "@reduxjs/toolkit";
-import { ReducerMap as ReducerMapSite } from './site_modules';
-import { ReducerMap as ReducerMapCore } from './core_modules';
+import { NamespaceSlice } from "./pages/core/toolbar/NamespaceSelector/NamespaceSelector.reducer";
+import { ToolbarSlice } from "./pages/core/toolbar/Toolbar.reducer";
+import { DashboardSlice } from "./pages/dashboard/Dashboard.reducer";
+import { TasksSlice } from "./pages/new/TaskTable/TaskTable.reducer";
+import { SignInSlice } from "./pages/signin/SignInSlice";
+import { WorkflowsSlice } from "./pages/workflows/WorkflowTable/WorkflowTable.reducer";
 
 const loadState = () => {
   try {
@@ -17,13 +21,18 @@ const loadState = () => {
 const peristedState = loadState();
 
 const combinedReducer = combineReducers({
-  ...ReducerMapCore,
-  ...ReducerMapSite
+  signin: SignInSlice,
+  namespace: NamespaceSlice,
+  workflows: WorkflowsSlice,
+  tasks: TasksSlice,
+  toolbar: ToolbarSlice,
+  dashboard: DashboardSlice
 });
 
 const rootReducer = (state, action) => {
   if (action.type === 'signin/logout') {
-    state = undefined;
+    localStorage.removeItem('state');
+    return combinedReducer(undefined, action);
   }
   return combinedReducer(state, action);
 };

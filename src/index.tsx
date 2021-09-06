@@ -3,11 +3,11 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
-import { Core } from "./core_modules/core";
+import Core from "./pages/core";
 
 const MaterialUIComponent = lazy(
   () => {
-    return import('./core_modules/core/components/core/MaterialUI')
+    return import('./pages/core/MaterialUI')
       .then(({ MaterialUIComponent }) => ({ default: MaterialUIComponent }));
   });
 
