@@ -32,7 +32,7 @@ export default function LargeToolbar(props) {
         <LargeMenuItem text="New" path="/orchestrator/new" key="/orchestrator/new"/>
         <span style={{ flexGrow: 1 }} key="cts2"/>
         <Divider orientation="vertical" variant="fullWidth" flexItem key="ctd2"/>
-        <CustomMenuButton variant="text" key="ctcmb" onClick={handleShowLogoutMenu}>
+        <CustomMenuButton variant="text" key="ctcmb" onClick={handleShowLogoutMenu} to="">
           <AccountBoxIcon/>
         </CustomMenuButton>
         <LogoutMenu anchorEl={signOutButtonRef} key="ctlm" setAnchorEl={setSignOutButtonRef}/>

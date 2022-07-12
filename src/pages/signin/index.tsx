@@ -3,7 +3,7 @@ import { Visibility, VisibilityOff } from "@material-ui/icons";
 import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import { Redirect, useHistory } from "react-router";
-import { selectLoggedIn, signInAsync, useReduxDispatch } from './SignInSlice';
+import { selectLoggedIn, signInAsync, useReduxDispatch } from './signin.slice';
 import clsx from 'clsx';
 import { useSelector } from "react-redux";
 
@@ -22,7 +22,7 @@ export function SignIn() {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(signInAsync(username, password))
+    dispatch(signInAsync(username, password, ['auth', 'user']))
       .then(
         (success: boolean) => {
           enqueueSnackbar(

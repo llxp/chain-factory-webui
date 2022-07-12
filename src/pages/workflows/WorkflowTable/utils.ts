@@ -12,6 +12,7 @@ var options: Intl.DateTimeFormatOptions = {
 };
 
 export function workflowsToListItemType(workflows: PagedWorkflows): PagedListItemType {
+  console.log(workflows);
   return {
     items: workflows?.workflows.map(workflow => {
       const entryTask = workflow.entry_task ? workflow.entry_task.name : "";

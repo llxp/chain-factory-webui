@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
-import { signOutAsync } from "../../signin/SignInSlice";
+import { signOutAsync } from "../../signin/signin.slice";
 import { SmallMenuItem } from "./Drawer/SmallMenuItem";
 
 export default function Drawer(props) {

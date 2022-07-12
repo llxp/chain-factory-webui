@@ -3,7 +3,7 @@ import { NamespaceSlice } from "./pages/core/toolbar/NamespaceSelector/Namespace
 import { ToolbarSlice } from "./pages/core/toolbar/Toolbar.reducer";
 import { DashboardSlice } from "./pages/dashboard/Dashboard.reducer";
 import { TasksSlice } from "./pages/new/TaskTable/TaskTable.reducer";
-import { SignInSlice } from "./pages/signin/SignInSlice";
+import { SignInSlice } from "./pages/signin/signin.slice";
 import { WorkflowsSlice } from "./pages/workflows/WorkflowTable/WorkflowTable.reducer";
 
 const loadState = () => {

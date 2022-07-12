@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import React from "react";
 import { useHistory } from "react-router";
 import { useSelector } from "react-redux";
-import { selectLoggedIn } from "../../../signin/SignInSlice";
+import { selectLoggedIn } from "../../../signin/signin.slice";
 
 export interface CustomMenuButtonProps {
   children: React.ReactNode;

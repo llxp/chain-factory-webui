@@ -24,7 +24,7 @@ export function fetchWorkflows(
       console.log(error);
       dispatch(setWorkflows({} as PagedListItemType));
       dispatch(setWorkflowsFetching(false));
-      dispatch(setWorkflowsError(error.toString()));
+      dispatch(setWorkflowsError(error as string));
     }
   };
 }
@@ -44,7 +44,7 @@ export function updateWorkflows(
     } catch (error) {
       console.log(error);
       dispatch(setWorkflows({} as PagedListItemType));
-      dispatch(setWorkflowsError(error));
+      dispatch(setWorkflowsError(error as string));
     }
   };
 }
@@ -102,7 +102,7 @@ export function fetchTaskLogs(
       dispatch(setTaskLogsError(""));
     } catch (error) {
       console.log(error);
-      dispatch(setTaskLogsError(error));
+      dispatch(setTaskLogsError(error as string));
     }
   };
 }

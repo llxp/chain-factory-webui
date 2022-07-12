@@ -1,7 +1,7 @@
 import { Menu, MenuItem } from "@material-ui/core";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { signOutAsync } from "../../../signin/SignInSlice";
+import { signOutAsync } from "../../../signin/signin.slice";
 
 export default function LogoutMenu({anchorEl, setAnchorEl}) {
   const dispatch = useDispatch();

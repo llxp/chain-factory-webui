@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Redirect, useHistory } from "react-router";
 import { store } from "../../store";
-import { selectLoggedIn } from "../signin/SignInSlice";
+import { selectLoggedIn } from "../signin/signin.slice";
 import { Header } from "./Header";
 
 function SignInCheckComponent(history, location) {
